@@ -1,0 +1,32 @@
+bundle:
+  name: retail-analysis-pipeline
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog_name:
+    description: "The targeted Unity Catalog for data operations"
+    default: dev # Matches your new catalog name!
+
+targets:
+  dev:
+    default: true
+    workspace:
+      host: https://dbc-2b39ac0b-e6c3.cloud.databricks.com
+    variables:
+      catalog_name: dev # Points to the dev catalog
+
+  uat:
+    workspace:
+      host: https://dbc-2b39ac0b-e6c3.cloud.databricks.com
+    variables:
+      catalog_name: uat # Points to the uat catalog
+    mode: production 
+
+  prod:
+    workspace:
+      host: https://dbc-2b39ac0b-e6c3.cloud.databricks.com
+    variables:
+      catalog_name: prod # Points to the prod catalog
+    mode: production
