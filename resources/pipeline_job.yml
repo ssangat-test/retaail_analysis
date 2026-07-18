@@ -1,0 +1,39 @@
+resources:
+  pipelines:
+    # 🚀 UPGRADE 1: Domain-Specific Resource Key
+    sales_medallion_pipeline:
+      name: ${bundle.target}_sales_medallion_pipeline
+      catalog: ${var.catalog_name}
+      
+      # 🚀 UPGRADE 2: Target Schema Isolation
+      target: sales
+      serverless: true
+      
+      # 🚀 UPGRADE 3: Bulletproof Portable Pathing
+      libraries:
+        # --- Bronze Layer ---
+        - notebook:
+            path: ${workspace.file_path}/src/bronze/dlt_extract_sales
+        - notebook:
+            path: ${workspace.file_path}/src/bronze/dlt_extract_location
+        
+        # --- Silver Layer ---
+        - notebook:
+            path: ${workspace.file_path}/src/silver/dlt_clean_sales
+        - notebook:
+            path: ${workspace.file_path}/src/silver/dlt_clean_location
+        
+        # --- Gold Layer ---
+        - notebook:
+            path: ${workspace.file_path}/src/gold/dlt_sales_by_location
+
+      # ✉️ Automated Alerts (Stays clean and centralized)
+      notifications:
+        - email_recipients:
+            - ssangat@robling.io
+          alerts:
+            - "on-update-failure"
+            - "on-update-fatal-failure"
+            - "on-update-success"
+
+      development: true
