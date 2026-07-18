@@ -19,7 +19,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 🚀 FIXED: Pointing directly to @main as recommended by Databricks
       - name: Setup Databricks CLI
         uses: databricks/setup-cli@main
 
