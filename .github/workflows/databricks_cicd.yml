@@ -1,4 +1,4 @@
-name: Databricks Bundle Precheck
+name: Databricks Bundle CI/CD
 
 on:
   push:
@@ -7,14 +7,14 @@ on:
     branches: [ dev, main ]
 
 env:
-  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-  DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST}}
+  DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN}}
 
 jobs:
+  # STAGE 1: Continuous Integration (CI) - Validation Gate
   bundle_validation:
     name: Validate Asset Bundle Code
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -25,3 +25,20 @@ jobs:
       - name: Validate Bundle Configuration
         run: |
           databricks bundle validate
+
+  # STAGE 2: Continuous Deployment (CD) - Target Workspace Promotion
+  bundle_deployment:
+    name: Deploy Asset Bundle
+    needs: bundle_validation # Guarantees execution ONLY if validation step passes completely
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' # Filters operation to direct push/merge execution logic only
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Deploy Bundle to Workspace
+        run: |
+          databricks bundle deploy --target dev
